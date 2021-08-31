@@ -1,0 +1,292 @@
+# streamlit run app.py
+# pip install -r requirements.txt
+
+import streamlit as st
+import pickle
+import pandas as pd
+import numpy as np
+from PIL import Image
+
+# st.title('Fraud Detection')
+# st.markdown("<h1 style='text-align: center; color: black;'>Fraud Detection</h1>", unsafe_allow_html=True)
+im = Image.open("cover.png")
+st.image(im, width=700)
+
+html_temp = """
+<div style="width:700px;background-color:maroon;padding:10px">
+<h1 style="color:white;text-align:center;">Machine Learning Application (Demo)</h1>
+</div>"""
+st.markdown(html_temp,unsafe_allow_html=True)
+
+# # images
+# im = Image.open("image.png")
+# st.image(im, width=700)
+
+# @st.cache
+# bir buyuk bir datatyi read_csv ile tekrar tekrar okutmamak icin hafuzada tutmasi icin st.cache kullanilir.
+lightGBM = pickle.load(open("lightGBM.pkl","rb"))
+
+features= ['card1', 'card2', 'card4', 'card5', 
+           'D1', 'D3', 'D4', 'D5', 'D8', 'D10', 'D11', 'D15', 
+           'C1', 'C5', 'C13', 
+           'R_emaildomain_1', 'P_emaildomain_1', 
+           'TransactionAmt', 'addr1', 'dist1', 
+           'Transaction_hour', 'Transaction_day_of_week', 
+           'id_19', 'id_20', 'id_33']
+
+id_33 = [153600,   230400,   270000,   384480,   410400,   442368,
+         480000,   518400,   565248,   585600,   614400,   636411,
+         655360,   669060,   670488,   672195,   727040,   728320,
+         746496,   768000,   784000,   784641,   785408,   785664,
+         786432,   787200,   793600,   810000,   829440,   838656,
+         849239,   852480,   855360,   863583,   864000,   911360,
+         921600,   922320,   923601,   936960,   947200,   983040,
+         985600,   995328,  1000500,  1003104,  1016064,  1024000,
+        1024800,  1026081,  1036800,  1043120,  1043712,  1044480,
+        1046955,  1047552,  1047722,  1048320,  1049088,  1050624,
+        1065600,  1092960,  1115136,  1128960,  1133160,  1152000,
+        1156320,  1164151,  1166400,  1167936,  1174947,  1220400,
+        1221120,  1228800,  1239040,  1260000,  1262624,  1264158,
+        1267688,  1269190,  1293661,  1294560,  1295100,  1296000,
+        1298341,  1308417,  1309440,  1309696,  1310720,  1312000,
+        1327104,  1339200,  1382400,  1398784,  1426384,  1428840,
+        1437501,  1438400,  1439100,  1440000,  1470000,  1474560,
+        1510236,  1568160,  1568468,  1587600,  1594748,  1600000,
+        1632000,  1638400,  1638720,  1676917,  1679616,  1682317,
+        1726316,  1742400,  1753856,  1753920,  1761271,  1762320,
+        1764000,  1765680,  1769472,  1776000,  1776608,  1832075,
+        1871424,  1872000,  1918080,  1920000,  1954560,  1959800,
+        2025000,  2070601,  2071440,  2071680,  2072520,  2073600,
+        2074680,  2075520,  2076601,  2134440,  2170800,  2211840,
+        2242080,  2250000,  2251125,  2300881,  2302800,  2304000,
+        2305920,  2332800,  2334960,  2359296,  2360448,  2397600,
+        2399820,  2455680,  2457600,  2459520,  2476800,  2509056,
+        2617344,  2621440,  2624400,  2740500,  2742336,  2755200,
+        2764800,  2916000,  2985984,  3106801,  3108240,  3108960,
+        3110400,  3145728,  3147264,  3240000,  3317760,  3389265,
+        3393024,  3409920,  3412024,  3444480,  3528000,  3600000,
+        3682401,  3684960,  3686400,  3692962,  3694404,  3709632,
+        3840000,  3847680,  3902400,  3969000,  4096000,  4147200,
+        4152960,  4155844,  4194829,  4262400,  4263840,  4269762,
+        4352000,  4410000,  4460544,  4608000,  4665600,  4860000,
+        4953600,  4955040,  4956160,  4985905,  4987728,  4990464,
+        4991375,  4995025,  5184000,  5308416,  5595136,  5758200,
+        5760000,  5761800,  5998000,  6000000,  6002000,  6144000,
+        6220800,  6350400,  6400000,  6969600,  6998400,  7056000,
+        8100000,  8282404,  8288401,  8290080,  8292240,  8294400,
+        8300401,  8302080,  8312409,  8537760,  9216000,  9437184,
+       11025000, 13492501, 13500000, 14745600, 15876000, 18662400,
+       20358144, 23040000, 25401600, 37500000]
+
+
+R_emaildomain_1_list = ['None', 'gmail', 'hotmail', 'outlook', 'anonymous', 'charter',
+                       'prodigy', 'comcast', 'live', 'icloud', 'yahoo', 'aol', 'juno',
+                       'att', 'verizon', 'bellsouth', 'servicios-ta', 'ymail', 'msn',
+                       'optonline', 'gmx', 'aim', 'mail', 'me', 'cox', 'earthlink',
+                       'embarqmail', 'web', 'sbcglobal', 'scranton', 'mac', 'twc',
+                       'roadrunner', 'frontiernet', 'q', 'windstream', 'suddenlink',
+                       'ptd', 'frontier', 'cfl', 'netzero', 'rocketmail', 'centurylink',
+                       'protonmail', 'cableone', 'sc']
+P_emaildomain_1_list = ['None', 'gmail', 'outlook', 'yahoo', 'mail', 'anonymous',
+                       'hotmail', 'verizon', 'aol', 'me', 'comcast', 'optonline', 'cox',
+                       'charter', 'rocketmail', 'prodigy', 'embarqmail', 'icloud', 'live',
+                       'att', 'juno', 'ymail', 'sbcglobal', 'bellsouth', 'msn', 'q',
+                       'centurylink', 'servicios-ta', 'earthlink', 'cfl', 'roadrunner',
+                       'netzero', 'gmx', 'suddenlink', 'frontiernet', 'windstream',
+                       'frontier', 'mac', 'aim', 'web', 'twc', 'cableone', 'sc', 'ptd',
+                       'protonmail']
+
+
+
+st.sidebar.header("Configure the Transaction Features:")
+
+card1 = st.sidebar.slider("Card1:", 1000,18397,8755, step=1)
+card2 = st.sidebar.slider("Card2:", 100,601,500, step=1)
+card4 = st.sidebar.selectbox("Card4:",('None', 'american express', 'discover', 'mastercard', 'visa'))
+card5 = st.sidebar.slider("Card5:", 100,238,224, step=1)
+
+id_19 = st.sidebar.slider("id_19:", 100,672,341, step=1)
+id_20 = st.sidebar.slider("id_20:", 100,662,472, step=1)
+id_33 = st.sidebar.selectbox("id_33",(id_33)) #kategorik yap
+
+D1 = st.sidebar.slider("D1:", 0,641,0, step=1)
+D3 = st.sidebar.slider("D3:", 0,820,8, step=1)
+D4 = st.sidebar.slider("D4:", -122,670,22, step=1)
+D5 = st.sidebar.slider("D5:", 0,820,0, step=1)
+D8 = st.sidebar.slider("D8:", 0,1708,1, step=1)
+D10 = st.sidebar.slider("D10:", 0,877,0, step=1)
+D11 = st.sidebar.slider("D11:", -53,671,43, step=1)
+D15 = st.sidebar.slider("D15:", -83,880,0, step=1)
+
+C1 = st.sidebar.slider("C1:", 0,4686,4, step=1)
+C5 = st.sidebar.slider("C5:", 0,350,0, step=1)
+C13 = st.sidebar.slider("C13:", 0,2919,0, step=1)
+
+TransactionAmt = st.sidebar.slider("TransactionAmt:", 0,31938,17643, step=1)
+addr1 = st.sidebar.slider("addr1:", 0,541,299, step=1)
+dist1 = st.sidebar.slider("dist1:", 0,10287,8, step=1)
+Transaction_hour = st.sidebar.slider("Transaction_hour:", 0,23,23, step=1)
+Transaction_day_of_week = st.sidebar.slider("Transaction_day_of_week:", 1,7,4, step=1)-1
+
+
+# default values >> Mode
+mode_values= {'C1': 1,
+              'C13': 1,
+              'C5': 0,
+              'D1': 0,
+              'D10': 0,
+              'D11': 43,
+              'D15': 0,
+              'D3': 8,
+              'D4': 26,
+              'D5': 10,
+              'D8': 37875,
+              'P_emaildomain_1': 'gmail',
+              'R_emaildomain_1': 'None',
+              'TransactionAmt': 59,
+              'Transaction_day_of_week': 0,
+              'Transaction_hour': 19,
+              'addr1': 299,
+              'card1': 7919,
+              'card2': 321,
+              'card4': 'visa',
+              'card5': 226,
+              'dist1': 8,
+              'id_19': 341,
+              'id_20': 472,
+              'id_33': 2073600}
+
+###########################################################
+
+# card1 = st.sidebar.slider("Card1:", 1000,18397,mode_values['card1'], step=1)
+# card2 = st.sidebar.slider("Card2:", 100,601,mode_values['card2'], step=1)
+# card4 = st.sidebar.selectbox("Card4:",('visa','None','american express', 'discover', 'mastercard'))
+# card5 = st.sidebar.slider("Card5:", 100,238,mode_values['card5'], step=1)
+
+# id_19 = st.sidebar.slider("id_19:", 100,672,mode_values['id_19'], step=1)
+# id_20 = st.sidebar.slider("id_20:", 100,662,mode_values['id_20'], step=1)
+# id_33 = st.sidebar.selectbox("id_33",(id_33))
+
+# D1 = st.sidebar.slider("D1:", 0,641,mode_values['D1'], step=1)
+# D3 = st.sidebar.slider("D3:", 0,820,mode_values['D3'], step=1)
+# D4 = st.sidebar.slider("D4:", -122,670,mode_values['D4'], step=1)
+# D5 = st.sidebar.slider("D5:", 0,820,mode_values['D5'], step=1)
+# D8 = st.sidebar.slider("D8:", 0,1708,mode_values['D8'], step=1)
+# D10 = st.sidebar.slider("D10:", 0,877,mode_values['D10'], step=1)
+# D11 = st.sidebar.slider("D11:", -53,671,mode_values['D11'], step=1)
+# D15 = st.sidebar.slider("D15:", -83,880,mode_values['D15'], step=1)
+
+# C1 = st.sidebar.slider("C1:", 0,4686,mode_values['C1'], step=1)
+# C5 = st.sidebar.slider("C5:", 0,350,mode_values['C5'], step=1)
+# C13 = st.sidebar.slider("C13:", 0,2919,mode_values['C13'], step=1)
+
+# TransactionAmt = st.sidebar.slider("TransactionAmt:", 0,31938,mode_values['TransactionAmt'], step=1)
+# addr1 = st.sidebar.slider("addr1:", 0,541,mode_values['addr1'], step=1)
+# dist1 = st.sidebar.slider("dist1:", 0,10287,mode_values['dist1'], step=1)
+# Transaction_hour = st.sidebar.slider("Transaction_hour:", 0,23,mode_values['Transaction_hour'], step=1)
+# Transaction_day_of_week = st.sidebar.slider("Transaction_day_of_week:", 1,7,mode_values['Transaction_day_of_week']+1, step=1)-1
+
+###########################################################
+
+
+R_emaildomain_1 = st.sidebar.selectbox("R_emaildomain_1:",(R_emaildomain_1_list))
+P_emaildomain_1 = st.sidebar.selectbox("P_emaildomain_1:",(P_emaildomain_1_list))
+
+my_dict = {'C1': C1,
+             'C13': C13,
+             'C5': C5,
+             'D1': D1,
+             'D10': D10,
+             'D11': D11,
+             'D15': D15,
+             'D3': D3,
+             'D4': D4,
+             'D5': D5,
+             'D8': D8,
+             'P_emaildomain_1': P_emaildomain_1,
+             'R_emaildomain_1': R_emaildomain_1,
+             'TransactionAmt': TransactionAmt,
+             'Transaction_day_of_week': Transaction_day_of_week,
+             'Transaction_hour': Transaction_hour,
+             'addr1': addr1,
+             'card1': card1,
+             'card2': card2,
+             'card4': card4,
+             'card5': card5,
+             'dist1': dist1,
+             'id_19': id_19,
+             'id_20': id_20,
+             'id_33': id_33}
+
+with open('FE_dict.pkl', 'rb') as handle:
+    FE_dict = pickle.load(handle)
+                                       
+# Feature Engineering
+my_dict['TransactionAmt_to_std_card1'] = FE_dict['TransactionAmt_to_std_card1'][my_dict['card1']]
+my_dict['TransactionAmt_to_mean_card1'] = FE_dict['TransactionAmt_to_mean_card1'][my_dict['card1']]
+my_dict['TransactionAmt_to_std_card4'] = FE_dict['TransactionAmt_to_std_card4'][my_dict['card4']]
+my_dict['D15_to_mean_card1'] = FE_dict['D15_to_mean_card1'][my_dict['card1']]
+my_dict['D15_to_std_card1'] = FE_dict['D15_to_std_card1'][my_dict['card1']]
+my_dict['TransactionAmt_to_mean_card4'] = FE_dict['TransactionAmt_to_mean_card4'][my_dict['card4']]
+my_dict['D15_to_mean_addr1'] = FE_dict['D15_to_mean_addr1'][my_dict['addr1']]
+
+my_dict['TransactionAmt_decimal'] = (my_dict['TransactionAmt']-np.floor(my_dict['TransactionAmt']))*100
+
+# Frequency Encoding
+my_dict['P_emaildomain_1_freq'] = FE_dict['P_emaildomain_1_freq'][my_dict['P_emaildomain_1']]
+my_dict['R_emaildomain_1_freq'] = FE_dict['R_emaildomain_1_freq'] [my_dict['R_emaildomain_1']]
+my_dict['card4_freq'] = FE_dict['card4_freq'][my_dict['card4']]                                                                      
+
+df = pd.DataFrame([my_dict]).drop(['card4', 'R_emaildomain_1', 'P_emaildomain_1'], axis=1)
+
+all_columns = ['TransactionAmt', 'card1', 'card2', 'card3', 'card5', 'addr1', 'dist1',
+       'C1', 'C5', 'C13', 'D1', 'D3', 'D4', 'D5', 'D8', 'D9', 'D10', 'D11',
+       'D13', 'D14', 'D15', 'id_01', 'id_02', 'id_03', 'id_05', 'id_06',
+       'id_09', 'id_10', 'id_11', 'id_13', 'id_14', 'id_17', 'id_19', 'id_20',
+       'id_32', 'id_33', 'Transaction_hour', 'Transaction_day_of_week',
+       'TransactionAmt_to_mean_card1', 'TransactionAmt_to_mean_card4',
+       'TransactionAmt_to_std_card1', 'TransactionAmt_to_std_card4',
+       'id_02_to_mean_card1', 'id_02_to_mean_card4', 'id_02_to_std_card1',
+       'id_02_to_std_card4', 'D15_to_mean_card1', 'D15_to_mean_card4',
+       'D15_to_std_card1', 'D15_to_std_card4', 'D15_to_mean_addr1',
+       'D15_to_std_addr1', 'TransactionAmt_decimal',
+       'TransactionAmt_winsorize', 'TransactionAmt_log', 'TransactionAmt_sqrt',
+       'TransactionAmt_z', 'pca_V1', 'pca_V2', 'ProductCD_freq',
+       'DeviceInfo_freq', 'DeviceType_freq', 'R_emaildomain_1_freq',
+       'R_emaildomain_2_freq', 'R_emaildomain_3_freq', 'P_emaildomain_1_freq',
+       'P_emaildomain_2_freq', 'P_emaildomain_3_freq', 'id_12_freq',
+       'id_28_freq', 'id_30_freq', 'id_31_freq', 'id_34_freq', 'id_35_freq',
+       'id_36_freq', 'id_37_freq', 'id_38_freq', 'M2_freq', 'M3_freq',
+       'M4_freq', 'M5_freq', 'M6_freq', 'M7_freq', 'M8_freq', 'M9_freq',
+       'card4_freq', 'card6_freq']
+                                       
+df = df.reindex(columns=all_columns, fill_value=0)
+
+# Table
+def single_customer(my_dict):
+    df_table = pd.DataFrame.from_dict([my_dict])
+#     st.table(df_table) 
+    st.write('')
+    st.dataframe(data=df_table, width=700, height=400)
+    st.write('')
+
+single_customer(my_dict)
+
+# Button
+if st.button("Submit"):
+    import time
+    with st.spinner("ML Model is loading..."):
+        my_bar=st.progress(0)
+        for p in range(0,101,10):
+            my_bar.progress(p)
+            time.sleep(0.1)
+
+            fraud_probability = lightGBM.predict_proba(df)
+            is_fraud= lightGBM.predict(df)
+    
+        st.success(f'The Fraud Probability of the Transaction is %{round(fraud_probability[0][1]*100,1)}')
+        
+        if is_fraud[0]:
+            st.warning("The Transaction is FRAUD")
+        else:
+            st.success("The Transaction is NOT FRAUD")
