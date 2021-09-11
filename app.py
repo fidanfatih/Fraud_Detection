@@ -6,6 +6,8 @@ import pickle
 import pandas as pd
 import numpy as np
 from PIL import Image
+import base64
+from io import BytesIO
 
 # st.title('Fraud Detection')
 # st.markdown("<h1 style='text-align: center; color: black;'>Fraud Detection</h1>", unsafe_allow_html=True)
@@ -34,7 +36,7 @@ features= ['card1', 'card2', 'card4', 'card5',
            'Transaction_hour', 'Transaction_day_of_week', 
            'id_19', 'id_20', 'id_33']
 
-id_33 = [153600,   230400,   270000,   384480,   410400,   442368,
+id_33 = [2073600,  230400,   270000,   384480,   410400,   442368,
          480000,   518400,   565248,   585600,   614400,   636411,
          655360,   669060,   670488,   672195,   727040,   728320,
          746496,   768000,   784000,   784641,   785408,   785664,
@@ -56,7 +58,7 @@ id_33 = [153600,   230400,   270000,   384480,   410400,   442368,
         1726316,  1742400,  1753856,  1753920,  1761271,  1762320,
         1764000,  1765680,  1769472,  1776000,  1776608,  1832075,
         1871424,  1872000,  1918080,  1920000,  1954560,  1959800,
-        2025000,  2070601,  2071440,  2071680,  2072520,  2073600,
+        2025000,  2070601,  2071440,  2071680,  2072520,  153600,
         2074680,  2075520,  2076601,  2134440,  2170800,  2211840,
         2242080,  2250000,  2251125,  2300881,  2302800,  2304000,
         2305920,  2332800,  2334960,  2359296,  2360448,  2397600,
@@ -87,47 +89,49 @@ R_emaildomain_1_list = ['None', 'gmail', 'hotmail', 'outlook', 'anonymous', 'cha
                        'roadrunner', 'frontiernet', 'q', 'windstream', 'suddenlink',
                        'ptd', 'frontier', 'cfl', 'netzero', 'rocketmail', 'centurylink',
                        'protonmail', 'cableone', 'sc']
-P_emaildomain_1_list = ['None', 'gmail', 'outlook', 'yahoo', 'mail', 'anonymous',
+P_emaildomain_1_list = ['gmail', 'outlook', 'yahoo', 'mail', 'anonymous',
                        'hotmail', 'verizon', 'aol', 'me', 'comcast', 'optonline', 'cox',
                        'charter', 'rocketmail', 'prodigy', 'embarqmail', 'icloud', 'live',
                        'att', 'juno', 'ymail', 'sbcglobal', 'bellsouth', 'msn', 'q',
                        'centurylink', 'servicios-ta', 'earthlink', 'cfl', 'roadrunner',
                        'netzero', 'gmx', 'suddenlink', 'frontiernet', 'windstream',
                        'frontier', 'mac', 'aim', 'web', 'twc', 'cableone', 'sc', 'ptd',
-                       'protonmail']
+                       'protonmail','None']
 
 
 
 st.sidebar.header("Configure the Transaction Features:")
 
-card1 = st.sidebar.slider("Card1:", 1000,18397,8755, step=1)
-card2 = st.sidebar.slider("Card2:", 100,601,500, step=1)
-card4 = st.sidebar.selectbox("Card4:",('None', 'american express', 'discover', 'mastercard', 'visa'))
-card5 = st.sidebar.slider("Card5:", 100,238,224, step=1)
+############################################################################################################
+card1 = st.sidebar.slider("Card1:", 1000,18397,8732, step=1)
+card2 = st.sidebar.slider("Card2:", 100,601,360, step=1)
+card4 = st.sidebar.selectbox("Card4:",('mastercard','american express','discover','visa','None'))
+card5 = st.sidebar.slider("Card5:", 100,238,229, step=1)
 
 id_19 = st.sidebar.slider("id_19:", 100,672,341, step=1)
 id_20 = st.sidebar.slider("id_20:", 100,662,472, step=1)
 id_33 = st.sidebar.selectbox("id_33",(id_33)) #kategorik yap
 
 D1 = st.sidebar.slider("D1:", 0,641,0, step=1)
-D3 = st.sidebar.slider("D3:", 0,820,8, step=1)
-D4 = st.sidebar.slider("D4:", -122,670,22, step=1)
+D3 = st.sidebar.slider("D3:", 0,820,1, step=1)
+D4 = st.sidebar.slider("D4:", -122,670,1, step=1)
 D5 = st.sidebar.slider("D5:", 0,820,0, step=1)
-D8 = st.sidebar.slider("D8:", 0,1708,1, step=1)
+D8 = st.sidebar.slider("D8:", 0,1708,37, step=1)
 D10 = st.sidebar.slider("D10:", 0,877,0, step=1)
-D11 = st.sidebar.slider("D11:", -53,671,43, step=1)
+D11 = st.sidebar.slider("D11:", -53,671,0, step=1)
 D15 = st.sidebar.slider("D15:", -83,880,0, step=1)
 
-C1 = st.sidebar.slider("C1:", 0,4686,4, step=1)
+C1 = st.sidebar.slider("C1:", 0,4686,2, step=1)
 C5 = st.sidebar.slider("C5:", 0,350,0, step=1)
 C13 = st.sidebar.slider("C13:", 0,2919,0, step=1)
 
-TransactionAmt = st.sidebar.slider("TransactionAmt:", 0,31938,17643, step=1)
-addr1 = st.sidebar.slider("addr1:", 0,541,299, step=1)
+TransactionAmt = st.sidebar.slider("TransactionAmt:", 0,31938,126, step=1)
+addr1 = st.sidebar.slider("addr1:", 0,541,330, step=1)
 dist1 = st.sidebar.slider("dist1:", 0,10287,8, step=1)
-Transaction_hour = st.sidebar.slider("Transaction_hour:", 0,23,23, step=1)
-Transaction_day_of_week = st.sidebar.slider("Transaction_day_of_week:", 1,7,4, step=1)-1
+Transaction_hour = st.sidebar.slider("Transaction_hour:", 0,23,22, step=1)
+Transaction_day_of_week = st.sidebar.slider("Transaction_day_of_week:", 1,7,1, step=1)-1
 
+###############################################################################################
 
 # default values >> Mode
 mode_values= {'C1': 1,
@@ -156,7 +160,7 @@ mode_values= {'C1': 1,
               'id_20': 472,
               'id_33': 2073600}
 
-###########################################################
+# ###########################################################
 
 # card1 = st.sidebar.slider("Card1:", 1000,18397,mode_values['card1'], step=1)
 # card2 = st.sidebar.slider("Card2:", 100,601,mode_values['card2'], step=1)
@@ -272,8 +276,18 @@ def single_customer(my_dict):
 
 single_customer(my_dict)
 
+# Upload a csv
+output = pd.DataFrame()
+uploaded_file = st.file_uploader("Choose a file")
+if uploaded_file is not None:
+    file = pd.read_csv(uploaded_file)
+    flag=file.copy()
+    st.dataframe(data=file, width=700, height=1000)
+    st.write('')
+#  st.table(file)
+
 # Button
-if st.button("Submit"):
+if st.button("Submit Manuel Inputs"):
     import time
     with st.spinner("ML Model is loading..."):
         my_bar=st.progress(0)
@@ -284,9 +298,67 @@ if st.button("Submit"):
             fraud_probability = lightGBM.predict_proba(df)
             is_fraud= lightGBM.predict(df)
     
-        st.success(f'The Fraud Probability of the Transaction is %{round(fraud_probability[0][1]*100,1)}')
+        st.success(f'The Fraud Probability of the Transaction is {round(fraud_probability[0][1]*100,3)}%')
+#         st.success(f'The Fraud Probability of the Transaction is {fraud_probability[0][1]}')
         
         if is_fraud[0]:
-            st.warning("The Transaction is FRAUD")
+            st.success("The Transaction is FRAUD")
         else:
-            st.success("The Transaction is NOT FRAUD")
+            st.warning("The Transaction is NOT FRAUD")
+            
+# Load Button
+if st.button("Submit CSV File"):
+    import time
+    with st.spinner("ML Model is loading..."):
+        my_bar=st.progress(0)
+        for p in range(0,101,10):
+            my_bar.progress(p)
+            time.sleep(0.1)
+            
+    for i in file.index:
+        # Feature Engineering
+        file.loc[i,'TransactionAmt_to_std_card1'] = FE_dict['TransactionAmt_to_std_card1'][file.loc[i,'card1']]
+        file.loc[i,'TransactionAmt_to_mean_card1'] = FE_dict['TransactionAmt_to_mean_card1'][file.loc[i,'card1']]
+        file.loc[i,'TransactionAmt_to_std_card4'] = FE_dict['TransactionAmt_to_std_card4'][file.loc[i,'card4']]
+        file.loc[i,'D15_to_mean_card1'] = FE_dict['D15_to_mean_card1'][file.loc[i,'card1']]
+        file.loc[i,'D15_to_std_card1'] = FE_dict['D15_to_std_card1'][file.loc[i,'card1']]
+        file.loc[i,'TransactionAmt_to_mean_card4'] = FE_dict['TransactionAmt_to_mean_card4'][file.loc[i,'card4']]
+        file.loc[i,'D15_to_mean_addr1'] = FE_dict['D15_to_mean_addr1'][file.loc[i,'addr1']]
+
+        file.loc[i,'TransactionAmt_decimal'] = (file.loc[i,'TransactionAmt']-np.floor(file.loc[i,'TransactionAmt']))*100
+
+        # Frequency Encoding
+        file.loc[i,'P_emaildomain_1_freq'] = FE_dict['P_emaildomain_1_freq'][file.loc[i,'P_emaildomain_1']]
+        file.loc[i,'R_emaildomain_1_freq'] = FE_dict['R_emaildomain_1_freq'] [file.loc[i,'R_emaildomain_1']]
+        file.loc[i,'card4_freq'] = FE_dict['card4_freq'][file.loc[i,'card4']]                                                           
+
+    file = file.drop(['card4', 'R_emaildomain_1', 'P_emaildomain_1'], axis=1)
+    file = file.reindex(columns=all_columns, fill_value=0)
+    pred_file= pd.DataFrame(lightGBM.predict_proba(file))[[1]].rename({1:'Prediction'}, axis=1)
+    pred_file['isFraud'] = pred_file.iloc[:,0].apply(lambda x: 'YES' if np.float(x)>=0.5 else 'NO')
+    output = pd.concat([pred_file,flag], axis=1)
+    st.write('')
+    st.dataframe(data=output, width=700, height=400)
+    st.write('')
+
+def download_link(object_to_download, download_filename, download_link_text):
+    if isinstance(object_to_download,pd.DataFrame):
+        object_to_download = object_to_download.to_csv(index=False)
+
+    # some strings <-> bytes conversions necessary here
+    b64 = base64.b64encode(object_to_download.encode()).decode()
+
+    return f'<a href="data:file/txt;base64,{b64}" download="{download_filename}">{download_link_text}</a>'
+
+# output = pd.concat([pred_file,flag], axis=1)
+
+# if st.button('Download Output as CSV'):
+tmp_download_link = download_link(output, 'output.csv', 'Click here to download output as csv!')
+st.markdown(tmp_download_link, unsafe_allow_html=True)
+
+comment = st.text_input('Write your comments below.')
+# st.write(comment)
+
+# if st.button('Download input as a text file'):
+tmp_download_link = download_link(comment, 'commend.txt', 'Click here to download comment text!')
+st.markdown(tmp_download_link, unsafe_allow_html=True)
