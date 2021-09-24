@@ -104,7 +104,8 @@ While splitting train and test data, it is important to keep the 3.5% rate of th
 There was a balanced distribution of feature importance, it seems that there is not. The most powerful feature of boosting algorithms is to work on different sub-observations and sub-independent features and reduce bias.
 
 ## Evaluation Metrics
-As seen on the left, LightGBM has done much better than XGBoost. It is also more successful than XGBoost in terms of training time and lower memory usage.
+
+LightGBM has done much better than XGBoost. It is also more successful than XGBoost in terms of training time and lower memory usage.
 Evaluation of the Metrics
 Accuracy is a metric that is widely used to measure the success of a model for balanced datasets but our dataset is extremely unbalanced. So, We don’t take into account the accuracy score.
 Precision shows how many of the values we estimated as positive are actually positive.
